@@ -14,6 +14,7 @@ const routes = {
   pug: {
     src: 'src/*.pug',
     dest: 'build/',
+    watch: 'src/**/*.pug',
   },
   img: {
     src: 'src/img/*',
@@ -22,10 +23,12 @@ const routes = {
   scss: {
     src: 'src/scss/style.scss',
     dest: 'build/css',
+    watch: 'src/scss/**/*.scss',
   },
   js: {
     src: 'src/js/main.js',
     dest: 'build/js',
+    watch: 'src/js/**/*.js',
   },
 };
 
@@ -60,8 +63,15 @@ const js = () =>
     )
     .pipe(gulp.dest(routes.js.dest));
 
+const watch = () => {
+  gulp.watch(routes.pug.watch, pug);
+  gulp.watch(routes.img.src, img);
+  gulp.watch(routes.scss.watch, styles);
+  gulp.watch(routes.js.watch, js);
+};
+
 const prepare = gulp.series([clean, img]);
 const assets = gulp.series([pug, styles, js]);
-const live = gulp.parallel([webserver]);
+const live = gulp.parallel([webserver, watch]);
 
 export const dev = gulp.series([prepare, assets, live]);
