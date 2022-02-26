@@ -6,6 +6,9 @@ import image from 'gulp-image';
 import gSass from 'gulp-sass';
 import nSass from 'node-sass';
 const sass = gSass(nSass);
+import autop from 'gulp-autoprefixer';
+import bro from 'gulp-bro';
+import babelify from 'babelify';
 
 const routes = {
   pug: {
@@ -19,6 +22,10 @@ const routes = {
   scss: {
     src: 'src/scss/style.scss',
     dest: 'build/css',
+  },
+  js: {
+    src: 'src/js/main.js',
+    dest: 'build/js',
   },
 };
 
@@ -37,10 +44,24 @@ const styles = () =>
   gulp
     .src(routes.scss.src)
     .pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
+    .pipe(autop())
     .pipe(gulp.dest(routes.scss.dest));
 
+const js = () =>
+  gulp
+    .src(routes.js.src)
+    .pipe(
+      bro({
+        transform: [
+          babelify.configure({ presets: ['@babel/preset-env'] }),
+          ['uglifyify', { global: true }],
+        ],
+      })
+    )
+    .pipe(gulp.dest(routes.js.dest));
+
 const prepare = gulp.series([clean, img]);
-const assets = gulp.series([pug, styles]);
+const assets = gulp.series([pug, styles, js]);
 const live = gulp.parallel([webserver]);
 
 export const dev = gulp.series([prepare, assets, live]);
